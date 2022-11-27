@@ -21,6 +21,21 @@ The token bucket algorithm can be conceptually understood as follows:
   - if at least n tokens are in the bucket, n tokens are removed from the bucket, and the packet is sent to the network.
   - if fewer than n tokens are available, no tokens are removed from the bucket, and the packet is considered to be non-conformant.
 
+## Diagram
+
+```mermaid
+flowchart TB
+subgraph Token Bucket
+subgraph Tokens
+  id5((token))
+  id6((token))
+  id7((token))
+ end
+ Tokens -. Rate Limiting .-> id4
+  id4[(Bucket)] --> id2
+  id1[Incoming Data] --> id2{{Token Check}} --> id3[Outgoing Data]
+ end
+```
 
 ## References
 
