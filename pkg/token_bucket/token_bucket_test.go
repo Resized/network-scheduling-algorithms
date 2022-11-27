@@ -9,7 +9,7 @@ func TestTokenBucketPayloadTooLarge(t *testing.T) {
 	var tb = TokenBucket{}
 	tb.Init(100, 20)
 	err := tb.Take(101, time.Now())
-	assertError(t, err, true)
+	assertError(true, err, t)
 }
 
 func TestTokenBucketNotEnoughTokens(t *testing.T) {
@@ -17,7 +17,7 @@ func TestTokenBucketNotEnoughTokens(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 0
 	err := tb.Take(20, time.Now())
-	assertError(t, err, true)
+	assertError(true, err, t)
 }
 
 func TestTokenBucketEnoughTokens(t *testing.T) {
@@ -25,7 +25,7 @@ func TestTokenBucketEnoughTokens(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 60
 	err := tb.Take(20, time.Now())
-	assertError(t, err, false)
+	assertError(false, err, t)
 }
 
 func TestTokenBucketEnoughTokensMaxPayloadSize(t *testing.T) {
@@ -33,7 +33,7 @@ func TestTokenBucketEnoughTokensMaxPayloadSize(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 100
 	err := tb.Take(100, time.Now())
-	assertError(t, err, false)
+	assertError(false, err, t)
 }
 
 func TestTokenBucketNotEnoughTokensMaxPayloadSize(t *testing.T) {
@@ -41,7 +41,7 @@ func TestTokenBucketNotEnoughTokensMaxPayloadSize(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 99
 	err := tb.Take(100, time.Now())
-	assertError(t, err, true)
+	assertError(true, err, t)
 }
 
 func TestTokenBucketJustEnoughTokens(t *testing.T) {
@@ -50,7 +50,7 @@ func TestTokenBucketJustEnoughTokens(t *testing.T) {
 	tb.currentTokens = 0
 	tb.lastTime = time.Now().Add(-time.Millisecond * 1000)
 	err := tb.Take(20, time.Now())
-	assertError(t, err, false)
+	assertError(false, err, t)
 }
 
 func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
@@ -59,10 +59,10 @@ func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
 	tb.currentTokens = 0
 	tb.lastTime = time.Now().Add(-time.Millisecond * 999)
 	err := tb.Take(20, time.Now())
-	assertError(t, err, true)
+	assertError(true, err, t)
 }
 
-func assertError(t *testing.T, err error, expectedError bool) {
+func assertError(expectedError bool, err error, t *testing.T) {
 	if err != nil && !expectedError {
 		t.Errorf("unexpected error: %v", err)
 	}
