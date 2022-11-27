@@ -5,110 +5,11 @@ import (
 	"time"
 )
 
-func TestTokenBucketTableDriven(t *testing.T) {
-	type testStruct = struct {
-		name                    string
-		tb                      TokenBucket
-		payloadSize             int
-		elapsedTimeBetweenCalls time.Duration // To simulate time passing between calls
-		expectedError           bool
-	}
-	var tests = []testStruct{
-		{
-			name: "payload too large",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 100,
-				fillRate:      20,
-			},
-			payloadSize:   101,
-			expectedError: true,
-		},
-		{
-			name: "not enough tokens",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 0,
-				fillRate:      1,
-			},
-			payloadSize:   20,
-			expectedError: true,
-		},
-		{
-			name: "enough tokens",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 100,
-				fillRate:      20,
-			},
-			payloadSize:   10,
-			expectedError: false,
-		},
-		{
-			name: "enough tokens with max payload size",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 100,
-				fillRate:      20,
-			},
-			payloadSize:   100,
-			expectedError: false,
-		},
-		{
-			name: "not enough tokens with max payload size",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 99,
-				fillRate:      20,
-			},
-			payloadSize:   100,
-			expectedError: true,
-		},
-		{
-			name: "tokens are just enough",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 0,
-				fillRate:      20,
-			},
-			payloadSize:             20,
-			elapsedTimeBetweenCalls: time.Millisecond * 1000,
-			expectedError:           false,
-		},
-		{
-			name: "tokens are just not enough",
-			tb: TokenBucket{
-				maxCapacity:   100,
-				currentTokens: 0,
-				fillRate:      20,
-			},
-			payloadSize:             20,
-			elapsedTimeBetweenCalls: time.Millisecond * 999,
-			expectedError:           true,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			test.tb.lastTime = time.Now().Add(-test.elapsedTimeBetweenCalls)
-			err := test.tb.Take(test.payloadSize, time.Now())
-			if err != nil && !test.expectedError {
-				t.Errorf("unexpected error: %v", err)
-			}
-			if err == nil && test.expectedError {
-				t.Error("expected error but got none")
-			}
-		})
-	}
-}
-
 func TestTokenBucketPayloadTooLarge(t *testing.T) {
 	var tb = TokenBucket{}
 	tb.Init(100, 20)
 	err := tb.Take(101, time.Now())
-	if err == nil {
-		t.Error("expected error but got none")
-	}
+	assertError(t, err, true)
 }
 
 func TestTokenBucketNotEnoughTokens(t *testing.T) {
@@ -116,9 +17,7 @@ func TestTokenBucketNotEnoughTokens(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 0
 	err := tb.Take(20, time.Now())
-	if err == nil {
-		t.Error("expected error but got none")
-	}
+	assertError(t, err, true)
 }
 
 func TestTokenBucketEnoughTokens(t *testing.T) {
@@ -126,9 +25,7 @@ func TestTokenBucketEnoughTokens(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 60
 	err := tb.Take(20, time.Now())
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
+	assertError(t, err, false)
 }
 
 func TestTokenBucketEnoughTokensMaxPayloadSize(t *testing.T) {
@@ -136,9 +33,7 @@ func TestTokenBucketEnoughTokensMaxPayloadSize(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 100
 	err := tb.Take(100, time.Now())
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
+	assertError(t, err, false)
 }
 
 func TestTokenBucketNotEnoughTokensMaxPayloadSize(t *testing.T) {
@@ -146,9 +41,7 @@ func TestTokenBucketNotEnoughTokensMaxPayloadSize(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 99
 	err := tb.Take(100, time.Now())
-	if err == nil {
-		t.Error("expected error but got none")
-	}
+	assertError(t, err, true)
 }
 
 func TestTokenBucketJustEnoughTokens(t *testing.T) {
@@ -157,9 +50,7 @@ func TestTokenBucketJustEnoughTokens(t *testing.T) {
 	tb.currentTokens = 0
 	tb.lastTime = time.Now().Add(-time.Millisecond * 1000)
 	err := tb.Take(20, time.Now())
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
+	assertError(t, err, false)
 }
 
 func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
@@ -168,7 +59,14 @@ func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
 	tb.currentTokens = 0
 	tb.lastTime = time.Now().Add(-time.Millisecond * 999)
 	err := tb.Take(20, time.Now())
-	if err == nil {
+	assertError(t, err, true)
+}
+
+func assertError(t *testing.T, err error, expectedError bool) {
+	if err != nil && !expectedError {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if err == nil && expectedError {
 		t.Error("expected error but got none")
 	}
 }
