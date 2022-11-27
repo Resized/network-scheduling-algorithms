@@ -11,7 +11,6 @@ The token bucket algorithm is based on an analogy of a fixed capacity bucket int
 A conforming flow can thus contain traffic with an average rate up to the rate at which tokens are added to the bucket, and have a burstiness determined by the depth of the bucket. This burstiness may be expressed in terms of either a jitter tolerance, i.e. how much sooner a packet might conform (e.g. arrive or be transmitted) than would be expected from the limit on the average rate, or a burst tolerance or maximum burst size, i.e. how much more than the average level of traffic might conform in some finite period.
 
 
-
 ## Algorithm
 
 The token bucket algorithm can be conceptually understood as follows:
@@ -21,4 +20,9 @@ The token bucket algorithm can be conceptually understood as follows:
 - When a packet (network layer PDU) of n bytes arrives,
   - if at least n tokens are in the bucket, n tokens are removed from the bucket, and the packet is sent to the network.
   - if fewer than n tokens are available, no tokens are removed from the bucket, and the packet is considered to be non-conformant.
+
+
+## References
+
+[Token Bucket Wiki](https://www.wikiwand.com/en/Token_bucket)
 
