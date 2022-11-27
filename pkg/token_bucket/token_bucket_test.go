@@ -48,8 +48,9 @@ func TestTokenBucketJustEnoughTokens(t *testing.T) {
 	var tb = TokenBucket{}
 	tb.Init(100, 20)
 	tb.currentTokens = 0
-	tb.lastTime = time.Now().Add(-time.Millisecond * 1000)
-	err := tb.Take(20, time.Now())
+	now := time.Now()
+	tb.lastTime = now.Add(-time.Millisecond * 1000)
+	err := tb.Take(20, now)
 	assertError(false, err, t)
 }
 
@@ -57,8 +58,9 @@ func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
 	var tb = TokenBucket{}
 	tb.Init(100, 20)
 	tb.currentTokens = 0
-	tb.lastTime = time.Now().Add(-time.Millisecond * 999)
-	err := tb.Take(20, time.Now())
+	now := time.Now()
+	tb.lastTime = now.Add(-time.Millisecond * 999)
+	err := tb.Take(20, now)
 	assertError(true, err, t)
 }
 

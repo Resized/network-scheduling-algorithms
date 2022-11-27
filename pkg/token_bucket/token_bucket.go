@@ -34,7 +34,7 @@ func (tb *TokenBucket) Take(payloadSize int, t time.Time, logging ...bool) error
 	}
 	tb.currentTokens -= float64(payloadSize)
 	if len(logging) > 0 && logging[0] {
-		fmt.Printf("sending packet of size %v, current tokens: %.3v\n", payloadSize, tb.currentTokens)
+		fmt.Printf("accepting payload of size %v, current tokens: %.3v\n", payloadSize, tb.currentTokens)
 	}
 	return nil
 }
