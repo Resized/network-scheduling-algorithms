@@ -1,4 +1,4 @@
-# Network scheduling algorithms in GO
+# Traffic policing algorithms in GO
 
 ## Token Bucket
 
