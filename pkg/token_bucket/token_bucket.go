@@ -39,7 +39,7 @@ func (tb *TokenBucket) Take(payloadSize int, t time.Time, logging ...bool) error
 	return nil
 }
 
-func (tb *TokenBucket) InitTokenBucket(maxCapacity float64, fillRate float64) {
+func (tb *TokenBucket) Init(maxCapacity float64, fillRate float64) {
 	tb.maxCapacity = maxCapacity
 	tb.currentTokens = maxCapacity
 	tb.fillRate = fillRate
