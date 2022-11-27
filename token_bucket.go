@@ -16,17 +16,17 @@ type Packet struct {
 	size int
 }
 
-func (tb *TokenBucket) calcTokens() {
-	now := time.Now()
-	tb.currentTokens += (tb.fillRate / 1000.0) * float64(now.Sub(tb.lastTime).Milliseconds())
-	tb.lastTime = now
+func (tb *TokenBucket) calcTokens(t time.Time) {
+	elapsed := t.Sub(tb.lastTime)
+	tb.currentTokens += (tb.fillRate / 1000.0) * float64(elapsed.Milliseconds())
+	tb.lastTime = t
 	if tb.currentTokens > tb.maxCapacity {
 		tb.currentTokens = tb.maxCapacity
 	}
 }
 
-func (tb *TokenBucket) sendPacket(p Packet) error {
-	tb.calcTokens()
+func (tb *TokenBucket) sendPacket(p Packet, t time.Time) error {
+	tb.calcTokens(t)
 	if float64(p.size) > tb.maxCapacity {
 		return fmt.Errorf("packet too large for bucket, size: %v, max capacity: %.3v", p.size, tb.maxCapacity)
 	}
@@ -34,7 +34,7 @@ func (tb *TokenBucket) sendPacket(p Packet) error {
 		return fmt.Errorf("not enough tokens in bucket, need %v, have %.3v", p.size, tb.currentTokens)
 	}
 	tb.currentTokens -= float64(p.size)
-	fmt.Printf("sending packet of size %v, current tokens: %.3v\n", p.size, tb.currentTokens)
+	//fmt.Printf("sending packet of size %v, current tokens: %.3v\n", p.size, tb.currentTokens)
 	return nil
 }
 
@@ -46,7 +46,7 @@ func main() {
 	var tb = TokenBucket{maxCapacity: 100, currentTokens: 0, fillRate: 20, lastTime: time.Now()}
 	for {
 		for i := 0; i < 10; i++ {
-			err := tb.sendPacket(p[i])
+			err := tb.sendPacket(p[i], time.Now())
 			if err != nil {
 				fmt.Printf("error sending packet: %v\n", err)
 			}
