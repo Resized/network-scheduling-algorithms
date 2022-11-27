@@ -20,7 +20,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 100,
 				fillRate:      20,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 101},
 			waitTime:      0,
@@ -32,7 +31,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 0,
 				fillRate:      1,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 20},
 			waitTime:      0,
@@ -44,7 +42,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 100,
 				fillRate:      20,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 10},
 			waitTime:      0,
@@ -56,7 +53,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 100,
 				fillRate:      20,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 100},
 			waitTime:      0,
@@ -68,7 +64,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 99,
 				fillRate:      20,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 100},
 			waitTime:      0,
@@ -80,7 +75,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 0,
 				fillRate:      20,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 20},
 			waitTime:      time.Millisecond * 1000,
@@ -92,7 +86,6 @@ func TestTokenBucketTableDriven(t *testing.T) {
 				maxCapacity:   100,
 				currentTokens: 0,
 				fillRate:      20,
-				lastTime:      time.Now(),
 			},
 			p:             Packet{size: 20},
 			waitTime:      time.Millisecond * 999,
@@ -115,7 +108,7 @@ func TestTokenBucketTableDriven(t *testing.T) {
 }
 
 func BenchmarkTokenBucket(b *testing.B) {
-	tb := TokenBucket{maxCapacity: 100, currentTokens: 0, fillRate: 20, lastTime: time.Now()}
+	tb := TokenBucket{maxCapacity: 100, currentTokens: 0, fillRate: 20}
 	p := Packet{size: 10}
 	for i := 0; i < b.N; i++ {
 		_ = tb.sendPacket(p, time.Now())

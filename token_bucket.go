@@ -17,6 +17,9 @@ type Packet struct {
 }
 
 func (tb *TokenBucket) calcTokens(t time.Time) {
+	if tb.lastTime.IsZero() {
+		tb.lastTime = t
+	}
 	elapsed := t.Sub(tb.lastTime)
 	tb.currentTokens += (tb.fillRate / 1000.0) * float64(elapsed.Milliseconds())
 	tb.lastTime = t
