@@ -10,7 +10,7 @@ func TestTokenBucketTableDriven(t *testing.T) {
 		name                    string
 		tb                      TokenBucket
 		payloadSize             int
-		elapsedTimeBetweenCalls time.Duration
+		elapsedTimeBetweenCalls time.Duration // To simulate time passing between calls
 		expectedError           bool
 	}
 	var tests = []testStruct{
