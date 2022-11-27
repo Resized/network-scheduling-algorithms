@@ -25,9 +25,11 @@ func main() {
 		lb.Init(100, 20)
 		for {
 			for i := 0; i < 10; i++ {
-				err := lb.Add(p[i], time.Now(), true)
+				err := lb.Add(p[i], time.Now())
 				if err != nil {
 					fmt.Printf("error sending payload: %v\n", err)
+				} else {
+					fmt.Printf("accepting payload of size %v, current tokens: %.3v\n", p[i], lb.GetCurrent())
 				}
 				time.Sleep(time.Second / 2)
 			}
@@ -38,9 +40,11 @@ func main() {
 		tb.Init(100, 20)
 		for {
 			for i := 0; i < 10; i++ {
-				err := tb.Take(p[i], time.Now(), true)
+				err := tb.Take(p[i], time.Now())
 				if err != nil {
 					fmt.Printf("error sending payload: %v\n", err)
+				} else {
+					fmt.Printf("accepting payload of size %v, current tokens: %.3v\n", p[i], tb.GetCurrentTokens())
 				}
 				time.Sleep(time.Second / 2)
 			}

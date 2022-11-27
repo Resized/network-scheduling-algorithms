@@ -1,6 +1,7 @@
 package leaky_bucket
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -9,7 +10,7 @@ func TestLeakyBucketPayloadTooLarge(t *testing.T) {
 	var lb = LeakyBucket{}
 	lb.Init(100, 20)
 	err := lb.Add(101, time.Now())
-	assertError(true, err, t)
+	assert.Error(t, err)
 }
 
 func TestLeakyBucketNotEnoughRoom(t *testing.T) {
@@ -17,7 +18,7 @@ func TestLeakyBucketNotEnoughRoom(t *testing.T) {
 	lb.Init(100, 20)
 	lb.current = 90
 	err := lb.Add(11, time.Now())
-	assertError(true, err, t)
+	assert.Error(t, err)
 }
 
 func TestLeakyBucketEnoughRoom(t *testing.T) {
@@ -25,7 +26,7 @@ func TestLeakyBucketEnoughRoom(t *testing.T) {
 	lb.Init(100, 20)
 	lb.current = 90
 	err := lb.Add(10, time.Now())
-	assertError(false, err, t)
+	assert.NoError(t, err)
 }
 
 func TestLeakyBucketJustEnoughRoom(t *testing.T) {
@@ -35,7 +36,7 @@ func TestLeakyBucketJustEnoughRoom(t *testing.T) {
 	now := time.Now()
 	lb.lastTime = now.Add(-time.Millisecond * 1000)
 	err := lb.Add(20, now)
-	assertError(false, err, t)
+	assert.NoError(t, err)
 }
 
 func TestLeakyBucketJustNotEnoughRoom(t *testing.T) {
@@ -45,14 +46,5 @@ func TestLeakyBucketJustNotEnoughRoom(t *testing.T) {
 	now := time.Now()
 	lb.lastTime = now.Add(-time.Millisecond * 1000)
 	err := lb.Add(21, now)
-	assertError(true, err, t)
-}
-
-func assertError(expectedError bool, err error, t *testing.T) {
-	if err != nil && !expectedError {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if err == nil && expectedError {
-		t.Error("expected error but got none")
-	}
+	assert.Error(t, err)
 }

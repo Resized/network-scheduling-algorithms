@@ -1,6 +1,8 @@
 package token_bucket
 
 import (
+	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 	"time"
 )
@@ -9,7 +11,8 @@ func TestTokenBucketPayloadTooLarge(t *testing.T) {
 	var tb = TokenBucket{}
 	tb.Init(100, 20)
 	err := tb.Take(101, time.Now())
-	assertError(true, err, t)
+	assert.Error(t, err)
+	assert.True(t, strings.HasPrefix(err.Error(), "payload too large"))
 }
 
 func TestTokenBucketNotEnoughTokens(t *testing.T) {
@@ -17,7 +20,8 @@ func TestTokenBucketNotEnoughTokens(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 0
 	err := tb.Take(20, time.Now())
-	assertError(true, err, t)
+	assert.Error(t, err)
+	assert.True(t, strings.HasPrefix(err.Error(), "not enough tokens"))
 }
 
 func TestTokenBucketEnoughTokens(t *testing.T) {
@@ -25,7 +29,7 @@ func TestTokenBucketEnoughTokens(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 60
 	err := tb.Take(20, time.Now())
-	assertError(false, err, t)
+	assert.NoError(t, err)
 }
 
 func TestTokenBucketEnoughTokensMaxPayloadSize(t *testing.T) {
@@ -33,7 +37,7 @@ func TestTokenBucketEnoughTokensMaxPayloadSize(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 100
 	err := tb.Take(100, time.Now())
-	assertError(false, err, t)
+	assert.NoError(t, err)
 }
 
 func TestTokenBucketNotEnoughTokensMaxPayloadSize(t *testing.T) {
@@ -41,7 +45,8 @@ func TestTokenBucketNotEnoughTokensMaxPayloadSize(t *testing.T) {
 	tb.Init(100, 20)
 	tb.currentTokens = 99
 	err := tb.Take(100, time.Now())
-	assertError(true, err, t)
+	assert.Error(t, err)
+	assert.True(t, strings.HasPrefix(err.Error(), "not enough tokens"))
 }
 
 func TestTokenBucketJustEnoughTokens(t *testing.T) {
@@ -51,7 +56,7 @@ func TestTokenBucketJustEnoughTokens(t *testing.T) {
 	now := time.Now()
 	tb.lastTime = now.Add(-time.Millisecond * 1000)
 	err := tb.Take(20, now)
-	assertError(false, err, t)
+	assert.NoError(t, err)
 }
 
 func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
@@ -61,16 +66,8 @@ func TestTokenBucketJustNotEnoughTokens(t *testing.T) {
 	now := time.Now()
 	tb.lastTime = now.Add(-time.Millisecond * 999)
 	err := tb.Take(20, now)
-	assertError(true, err, t)
-}
-
-func assertError(expectedError bool, err error, t *testing.T) {
-	if err != nil && !expectedError {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if err == nil && expectedError {
-		t.Error("expected error but got none")
-	}
+	assert.Error(t, err)
+	assert.True(t, strings.HasPrefix(err.Error(), "not enough tokens"))
 }
 
 func BenchmarkTokenBucket(b *testing.B) {
