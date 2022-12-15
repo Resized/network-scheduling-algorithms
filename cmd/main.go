@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/Resized/traffic-policing-algorithms/pkg/leaky_bucket"
+	"github.com/Resized/traffic-policing-algorithms/pkg/token_bucket"
 	"log"
 	"time"
-	"token-bucket/pkg/leaky_bucket"
-	"token-bucket/pkg/token_bucket"
 )
 
 func main() {

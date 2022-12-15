@@ -1,4 +1,4 @@
-module token-bucket
+module github.com/Resized/traffic-policing-algorithms
 
 go 1.19
 
